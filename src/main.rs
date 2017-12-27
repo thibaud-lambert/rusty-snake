@@ -10,6 +10,7 @@ use amethyst::ecs::World;
 use amethyst::core::frame_limiter::FrameRateLimitStrategy;
 use amethyst::renderer::{DisplayConfig, DrawFlat, Event, KeyboardInput, Pipeline, RenderBundle, RenderSystem, Stage, VirtualKeyCode, WindowEvent, PosTex};
 use amethyst::core::transform::TransformBundle;
+use amethyst::input::InputBundle;
 
 use rendering::*;
 use snake::*;
@@ -48,20 +49,26 @@ impl State for SnakeGame {
 
 fn run() -> Result<(), amethyst::Error> {
     let path = format!(
-        "{}/resources/display_config.ron",
+        "{}/resources/display.ron",
         env!("CARGO_MANIFEST_DIR")
     );
     let config = DisplayConfig::load(&path);
 
-    let mut game = Application::build("./", SnakeGame)?
+    let key_bindings_path = format!(
+        "{}/resources/input.ron",
+        env!("CARGO_MANIFEST_DIR")
+);
+
+    let game = Application::build("./", SnakeGame)?
     .with_frame_limit(
         FrameRateLimitStrategy::SleepAndYield(Duration::from_millis(2)),
         144,
     )
+    .with_bundle(
+           InputBundle::<String, String>::new().with_bindings_from_file(&key_bindings_path),)?
     .with_bundle(RenderBundle::new())?
-    .with_bundle(TransformBundle::new())?;
-
-    game.world.register::<SnakePart>();
+    .with_bundle(TransformBundle::new())?
+    .with_bundle(SnakeBundle)?;
 
     let pipe = Pipeline::build().with_stage(
         Stage::with_backbuffer()

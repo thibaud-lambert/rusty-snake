@@ -1,0 +1,1 @@
+( axes: { "vertical_axis": ( pos: Key(Z), neg: Key(S), ), "horizontal_axis": ( pos: Key(D), neg: Key(Q), ), }, actions: { }, )
