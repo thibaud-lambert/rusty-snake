@@ -1,8 +1,6 @@
 (
   title: "rusty-snake",
-  dimensions: None,
-  max_dimensions: None,
-  min_dimensions: None,
+  dimensions: Some((500, 500)),
   fullscreen: false,
   multisampling: 1,
   visibility: true,
