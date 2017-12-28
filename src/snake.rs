@@ -1,4 +1,4 @@
-use {CELL_SIZE,ARENA_HEIGHT,ARENA_WIDTH,SNAKE_COLOUR};
+use {ARENA_HEIGHT,ARENA_WIDTH,SNAKE_COLOUR};
 
 use std::time::Duration;
 use amethyst::ecs::{Entity, Fetch, FetchMut, System, WriteStorage, DispatcherBuilder, Component, VecStorage, World};
@@ -28,7 +28,7 @@ pub fn initialise_snake(world: &mut World) {
 
     let mesh = create_mesh(
         world,
-        generate_rectangle_vertices(0.0, 0.0, CELL_SIZE, CELL_SIZE),
+        generate_rectangle_vertices(0.0, 0.0, 1.0, 1.0),
     );
 
     let material = create_colour_material(world, SNAKE_COLOUR);
@@ -114,7 +114,7 @@ impl<'a> System<'a> for SnakeSystem {
 
         // Find next position
         let mut head_pos = transforms.get_mut(snake.head).unwrap().translation;
-        head_pos += self.move_dir * CELL_SIZE;
+        head_pos += self.move_dir;
         head_pos.add_assign_element_wise(Vector3::new(ARENA_WIDTH,ARENA_HEIGHT,0.0));
         head_pos.rem_assign_element_wise(Vector3::new(ARENA_WIDTH,ARENA_HEIGHT,1.0));
 
