@@ -3,6 +3,8 @@ extern crate cgmath;
 
 mod snake;
 mod rendering;
+mod bundle;
+mod system;
 
 use std::time::Duration;
 use amethyst::prelude::*;
@@ -14,6 +16,7 @@ use amethyst::input::InputBundle;
 
 use rendering::*;
 use snake::*;
+use bundle::*;
 
 const ARENA_HEIGHT: f32 = 20.0;
 const ARENA_WIDTH: f32 = 20.0;
