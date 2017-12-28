@@ -1,7 +1,5 @@
 use {ARENA_HEIGHT,ARENA_WIDTH};
 
-use std::time::Duration;
-use amethyst::core::timing::Time;
 use amethyst::input::InputHandler;
 use amethyst::ecs::{Fetch, FetchMut, WriteStorage, System};
 use amethyst::core::transform::LocalTransform;
@@ -9,6 +7,7 @@ use amethyst::core::transform::LocalTransform;
 use cgmath::{Vector3,ElementWise};
 
 use snake::{Snake,SnakePart};
+use system::Turn;
 
 #[derive(PartialEq,Clone,Copy)]
 enum Direction {
@@ -19,8 +18,6 @@ enum Direction {
 }
 
 pub struct SnakeSystem {
-    delta_time : Duration,
-    update_rate : Duration,
     curr_dir : Direction,
     target_dir : Direction
 }
@@ -28,11 +25,8 @@ pub struct SnakeSystem {
 impl SnakeSystem {
     pub fn new() -> SnakeSystem {
         SnakeSystem {
-            delta_time : Duration::new(0,0),
-            update_rate : Duration::from_millis(500),
             curr_dir : Direction::UP,
             target_dir : Direction::UP
-
         }
     }
 }
@@ -41,12 +35,12 @@ impl<'a> System<'a> for SnakeSystem {
     type SystemData = (
         WriteStorage<'a, SnakePart>,
         WriteStorage<'a, LocalTransform>,
-        Fetch<'a, Time>,
+        Fetch<'a, Turn>,
         FetchMut<'a, Snake>,
         Fetch<'a, InputHandler<String, String>>,
     );
 
-    fn run(&mut self, (mut parts, mut transforms, time, mut snake, input): Self::SystemData) {
+    fn run(&mut self, (mut parts, mut transforms, turn, mut snake, input): Self::SystemData) {
 
         let vaxis = input.axis_value("vertical_axis");
         if let Some(vmov) = vaxis {
@@ -66,12 +60,10 @@ impl<'a> System<'a> for SnakeSystem {
             }
         }
 
-        self.delta_time += time.delta_time();
-        if self.delta_time < self.update_rate {
+        if !turn.0 {
             return;
         }
-        self.delta_time -= self.update_rate;
-
+        
         self.curr_dir = self.target_dir;
 
         let move_dir = match self.curr_dir {

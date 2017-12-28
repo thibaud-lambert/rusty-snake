@@ -7,3 +7,4 @@ authors = []
 # TODO: replace version with released version
 amethyst = { git = "https://github.com/amethyst/amethyst", branch = "develop" }
 cgmath = "*"
+rand = "*"

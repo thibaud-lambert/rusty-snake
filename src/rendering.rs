@@ -68,3 +68,34 @@ pub fn generate_rectangle_vertices(left: f32, bottom: f32, right: f32, top: f32)
     },
     ]
 }
+
+/// Generates vertices for a circle. The circle will be made of `resolution`
+/// triangles.
+pub fn generate_circle_vertices(radius: f32, resolution: usize) -> Vec<PosTex> {
+    use std::f32::consts::PI;
+
+    let mut vertices = Vec::with_capacity(resolution * 3);
+    let angle_offset = 2.0 * PI / resolution as f32;
+
+    // Helper function to generate the vertex at the specified angle.
+    let generate_vertex = |angle: f32| {
+        let x = angle.cos();
+        let y = angle.sin();
+        PosTex {
+            position: [x * radius, y * radius, 0.0],
+            tex_coord: [x, y],
+        }
+    };
+
+    for index in 0..resolution {
+        vertices.push(PosTex {
+            position: [0.0, 0.0, 0.0],
+            tex_coord: [0.0, 0.0],
+        });
+
+        vertices.push(generate_vertex(angle_offset * index as f32));
+        vertices.push(generate_vertex(angle_offset * (index + 1) as f32));
+    }
+
+    vertices
+}

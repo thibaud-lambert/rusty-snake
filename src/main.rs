@@ -1,5 +1,6 @@
 extern crate amethyst;
 extern crate cgmath;
+extern crate rand;
 
 mod snake;
 mod rendering;
@@ -21,6 +22,8 @@ use bundle::*;
 const ARENA_HEIGHT: f32 = 20.0;
 const ARENA_WIDTH: f32 = 20.0;
 const SNAKE_COLOUR: [f32; 4] = [0.2, 0.3, 0.8, 1.0];
+const FOOD_RADIUS: f32 = 0.4;
+const FOOD_COLOUR: [f32; 4] = [0.4, 0.8, 0.3, 1.0];
 
 struct SnakeGame;
 
@@ -28,6 +31,7 @@ impl State for SnakeGame {
     fn on_start(&mut self, world: &mut World) {
         initialise_camera(world);
         initialise_snake(world);
+        initialise_food(world);
     }
 
     fn handle_event(&mut self, _: &mut World, event: Event) -> Trans {

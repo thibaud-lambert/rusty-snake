@@ -1,9 +1,11 @@
-use {ARENA_HEIGHT,ARENA_WIDTH,SNAKE_COLOUR};
+use {ARENA_HEIGHT,ARENA_WIDTH,SNAKE_COLOUR, FOOD_COLOUR, FOOD_RADIUS};
 
 use amethyst::ecs::{Entity, Component, VecStorage, World};
 use amethyst::core::transform::{LocalTransform,Transform};
 use cgmath::Vector3;
 use rendering::*;
+
+use amethyst::renderer::{Material, MeshHandle};
 
 pub struct Snake {
     pub tail : Entity,
@@ -57,4 +59,16 @@ pub fn initialise_snake(world: &mut World) {
     .build();
 
     world.add_resource(Snake {head:head,tail:tail,growing:false});
+}
+
+pub struct FoodResource {
+    pub mesh : MeshHandle,
+    pub material : Material
+}
+
+pub fn initialise_food(world: &mut World) {
+    let mesh = create_mesh(world, generate_circle_vertices(FOOD_RADIUS, 16));
+    let material = create_colour_material(world, FOOD_COLOUR);
+
+    world.add_resource(FoodResource {mesh:mesh,material:material});
 }
