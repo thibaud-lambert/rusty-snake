@@ -24,7 +24,7 @@ struct SnakeGame;
 
 impl State for SnakeGame {
     fn on_start(&mut self, world: &mut World) {
-        initialise_camera(world);
+        initialise_camera(world);   
         initialise_snake(world);
     }
 

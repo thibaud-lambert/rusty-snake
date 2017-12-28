@@ -1,24 +1,26 @@
 use {CELL_SIZE,ARENA_HEIGHT,ARENA_WIDTH,SNAKE_COLOUR};
 
 use std::time::Duration;
-use amethyst::ecs::{Fetch, Join, System, WriteStorage, ReadStorage, DispatcherBuilder, Component, VecStorage, World};
+use amethyst::ecs::{Entity, Fetch, FetchMut, System, WriteStorage, DispatcherBuilder, Component, VecStorage, World};
 use amethyst::core::transform::{LocalTransform,Transform};
 use amethyst::core::timing::Time;
 use amethyst::core::bundle::{ECSBundle, Result};
 use amethyst::input::InputHandler;
 use cgmath::{Vector3,ElementWise};
 
-
 use rendering::*;
 
-pub enum SnakePart {
-    HEAD
+pub struct Snake {
+    head : Entity,
+    tail : Entity,
+    growing : bool
 }
+
+pub struct SnakePart(Option<Entity>);
 
 impl Component for SnakePart {
     type Storage = VecStorage<SnakePart>;
 }
-
 
 pub fn initialise_snake(world: &mut World) {
     let mut transform = LocalTransform::default();
@@ -31,13 +33,31 @@ pub fn initialise_snake(world: &mut World) {
 
     let material = create_colour_material(world, SNAKE_COLOUR);
 
-    world.create_entity()
-    .with(SnakePart::HEAD)
+    let head = world.create_entity()
+    .with(SnakePart(None))
+    .with(mesh.clone())
+    .with(material.clone())
+    .with(transform.clone())
+    .with(Transform::default())
+    .build();
+
+    let mid = world.create_entity()
+    .with(SnakePart(Some(head)))
+    .with(mesh.clone())
+    .with(material.clone())
+    .with(transform.clone())
+    .with(Transform::default())
+    .build();
+
+    let tail = world.create_entity()
+    .with(SnakePart(Some(mid)))
     .with(mesh)
     .with(material)
     .with(transform)
     .with(Transform::default())
     .build();
+
+    world.add_resource(Snake {head:head,tail:tail,growing:false});
 }
 
 pub struct SnakeSystem {
@@ -59,14 +79,15 @@ impl SnakeSystem {
 
 impl<'a> System<'a> for SnakeSystem {
     type SystemData = (
-        ReadStorage<'a, SnakePart>,
+        WriteStorage<'a, SnakePart>,
         WriteStorage<'a, LocalTransform>,
         Fetch<'a, Time>,
+        FetchMut<'a, Snake>,
         Fetch<'a, InputHandler<String, String>>,
     );
 
+    fn run(&mut self, (mut parts, mut transforms, time, mut snake, input): Self::SystemData) {
 
-    fn run(&mut self, (parts, mut transforms, time, input): Self::SystemData) {
         let vaxis = input.axis_value("vertical_axis");
         if let Some(vmov) = vaxis {
             if vmov as f32 == 1.0 {
@@ -75,6 +96,7 @@ impl<'a> System<'a> for SnakeSystem {
                 self.move_dir = Vector3::new(0.0,-1.0,0.0);
             }
         }
+
         let haxis = input.axis_value("horizontal_axis");
         if let Some(hmov) = haxis {
             if hmov as f32 == 1.0 {
@@ -90,16 +112,23 @@ impl<'a> System<'a> for SnakeSystem {
         }
         self.delta_time -= self.update_rate;
 
-        // Iterate over all parts and move them according to the input the user provided.
-        for (part, transform) in (&parts, &mut transforms).join() {
-            match part {
-                &SnakePart::HEAD => {
-                    transform.translation += self.move_dir * CELL_SIZE;
-                    transform.translation.add_assign_element_wise(Vector3::new(ARENA_WIDTH,ARENA_HEIGHT,0.0));
-                    transform.translation.rem_assign_element_wise(Vector3::new(ARENA_WIDTH,ARENA_HEIGHT,1.0));
-                },
-            }
+        // Find next position
+        let mut head_pos = transforms.get_mut(snake.head).unwrap().translation;
+        head_pos += self.move_dir * CELL_SIZE;
+        head_pos.add_assign_element_wise(Vector3::new(ARENA_WIDTH,ARENA_HEIGHT,0.0));
+        head_pos.rem_assign_element_wise(Vector3::new(ARENA_WIDTH,ARENA_HEIGHT,1.0));
+
+
+        if snake.growing {
+        } else {
+            // // Tail become head
+            parts.get_mut(snake.head).unwrap().0 = Some(snake.tail);
+            snake.head = snake.tail;
+            snake.tail = parts.get(snake.tail).unwrap().0.unwrap();
+            parts.get_mut(snake.head).unwrap().0 = None;
         }
+
+        transforms.get_mut(snake.head).unwrap().translation = head_pos;
     }
 }
 
