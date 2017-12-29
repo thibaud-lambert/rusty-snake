@@ -13,7 +13,7 @@ impl TurnSystem {
     pub fn new() -> TurnSystem {
         TurnSystem {
             delta_time : Duration::new(0,0),
-            update_rate : Duration::from_millis(200),
+            update_rate : Duration::from_millis(100),
         }
     }
 }

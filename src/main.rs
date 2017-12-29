@@ -21,8 +21,9 @@ use bundle::*;
 
 const ARENA_HEIGHT: f32 = 20.0;
 const ARENA_WIDTH: f32 = 20.0;
+const SNAKE_RADIUS: f32 = 0.4;
 const SNAKE_COLOUR: [f32; 4] = [0.2, 0.3, 0.8, 1.0];
-const FOOD_RADIUS: f32 = 0.4;
+const FOOD_RADIUS: f32 = 0.3;
 const FOOD_COLOUR: [f32; 4] = [0.4, 0.8, 0.3, 1.0];
 
 struct SnakeGame;

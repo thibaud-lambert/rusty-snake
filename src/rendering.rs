@@ -10,10 +10,10 @@ pub fn initialise_camera(world: &mut World) {
     world
     .create_entity()
     .with(Camera::from(Projection::orthographic(
-        0.0,
-        ARENA_WIDTH,
-        ARENA_HEIGHT,
-        0.0,
+        -0.5,
+        ARENA_WIDTH-0.5,
+        ARENA_HEIGHT-0.5,
+        -0.5,
     )))
     .with(Transform(
         Matrix4::from_translation(Vector3::new(0.0, 0.0, 1.0)).into(),
